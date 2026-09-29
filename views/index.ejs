@@ -1,0 +1,126 @@
+<%- include("partials/header") %>
+<section class="panel formpanel">
+  <h2>Find a joke</h2>
+  <p class="panelintro">
+    Choose a category, joke type, optional keyword, and content filters.
+  </p>
+
+  <form action="/jokes" method="POST" class="jokeform" novalidate>
+    <div class="formgrid">
+      <label class="field">
+        <span>Category</span>
+        <select name="category" required>
+          <% categories.forEach(function (cat) { %>
+          <option value="<%= cat %>" <%= formData.category === cat ? "selected" : "" %>>
+            <%= cat %>
+          </option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Joke type</span>
+        <select name="type">
+          <option value="any" <%= formData.type === "any" ? "selected" : "" %>>Any</option>
+          <option value="single" <%= formData.type === "single" ? "selected" : "" %>>
+            Single (one-liner)
+          </option>
+          <option value="twopart" <%= formData.type === "twopart" ? "selected" : "" %>>
+            Two-part (setup + delivery)
+          </option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Contains keyword (Optional)</span>
+        <input
+          type="text"
+          name="contains"
+          placeholder="e.g. programmer, music, dog"
+          value="<%= formData.contains %>"
+          maxlength="64"
+        />
+      </label>
+
+      <label class="field">
+        <span>How many jokes? (1–10)</span>
+        <input
+          type="number"
+          name="amount"
+          min="1"
+          max="10"
+          value="<%= formData.amount %>"
+          required
+        />
+      </label>
+    </div>
+
+    <fieldset class="flags">
+      <legend>Blacklist flags (Optional)</legend>
+      <div class="flaggrid">
+        <% blacklistFlags.forEach(function (flag) { %>
+        <label class="check">
+          <input
+            type="checkbox"
+            name="blacklist"
+            value="<%= flag %>"
+            <%= formData.blacklist.includes(flag) ? "checked" : "" %>
+          />
+          <span><%= flag %></span>
+        </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <label class="check safemode">
+      <input
+        type="checkbox"
+        name="safeMode"
+        <%= formData.safeMode ? "checked" : "" %>
+      />
+      <span>Safe mode (Shows Non-inappropriate Jokes)</span>
+    </label>
+
+    <button type="submit" class="btnprimary">Receive jokes</button>
+  </form>
+</section>
+
+<% if (error) { %>
+<section class="panel errorpanel" role="alert">
+  <h2>Couldn’t fetch jokes</h2>
+  <p><%= error %></p>
+  <p class="hint">Update the form above and submit again.</p>
+</section>
+<% } %>
+
+<% if (jokes && jokes.length) { %>
+<section class="panel resultspanel">
+  <div class="resultsheader">
+    <h2>Results</h2>
+    <p><%= jokes.length %> joke<%= jokes.length === 1 ? "" : "s" %> found</p>
+  </div>
+
+  <ul class="jokelist">
+    <% jokes.forEach(function (joke, index) { %>
+    <li class="jokecard">
+      <div class="jokemeta">
+        <span class="badge"><%= joke.category %></span>
+        <span class="metaitem"><%= joke.type %></span>
+        <span class="metaitem">#<%= joke.id %></span>
+        <% if (joke.safe) { %>
+        <span class="badge safe">safe</span>
+        <% } %>
+      </div>
+
+      <% if (joke.type === "single") { %>
+      <p class="joketext"><%= joke.joke %></p>
+      <% } else { %>
+      <p class="jokesetup"><%= joke.setup %></p>
+      <p class="jokedelivery"><%= joke.delivery %></p>
+      <% } %>
+    </li>
+    <% }) %>
+  </ul>
+</section>
+<% } %>
+<%- include("partials/footer") %>
