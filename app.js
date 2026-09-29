@@ -108,9 +108,12 @@ app.post("/jokes", async (req, res) => {
     if (safeMode) {
       params["safe-mode"] = "";
     }
-    // Construct the API URL
+    // build the API URL
     const url = `${JOKE_API_BASE}/${encodeURIComponent(category)}`;
-    const response = await axios.get(url, { params, timeout: 10000 });
+    const response = await axios.get(url, {
+      params,
+      timeout: 10000,
+    });
     const data = response.data;
 
     // handle errors
